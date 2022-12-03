@@ -1,7 +1,7 @@
 # sessions
 golang sessions
 
-### Example   
+### Example Code    
 ```go
 package main
 
@@ -15,8 +15,8 @@ import (
 
 func main() {
 	manager, _ := sessions.NewCookieManager("memory", time.Minute * 30, "sessionid", 1800)
+	manager.GC(time.Minute * 30)
 	sessions.WithBackground(manager)
-	sessions.GC(time.Minute * 30)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		session := sessions.Start(w, r)
