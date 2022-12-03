@@ -21,6 +21,7 @@ func NewCookieManager(providerName string, lifetime time.Duration, cookieName st
 	if !ok {
 		return nil, fmt.Errorf("session: unknown provide %q (forgotten import?)", providerName)
 	}
+	provider.Expire(lifetime)
 	return &CookieManager{
 		lifetime:   lifetime,
 		maxAge:     maxAge,
@@ -93,6 +94,6 @@ func (m *CookieManager) GC(maxlifetime time.Duration) {
 	m.Lock()
 	defer m.Unlock()
 
-	m.provider.GC(m.lifetime)
+	m.provider.GC()
 	time.AfterFunc(maxlifetime, func() { m.GC(maxlifetime) })
 }

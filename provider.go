@@ -6,10 +6,11 @@ import (
 )
 
 type Provider interface {
+	Expire(lifetime time.Duration)
 	Init(sid string) (Session, error)
 	Read(sid string) (Session, error)
 	Destory(sid string) error
-	GC(lifetime time.Duration)
+	GC()
 }
 
 var (
@@ -28,7 +29,7 @@ func Register(name string, provider Provider) {
 }
 
 func init() {
-	Register("memory", &MemoryManager{sessions: make(map[string]Session)})
+	Register("memory", &MemoryManager{lifetime: time.Minute, sessions: make(map[string]Session)})
 }
 
 func WithBackground(manager *CookieManager) {

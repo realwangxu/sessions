@@ -38,7 +38,12 @@ func (m *Memory) SessionID() string {
 
 type MemoryManager struct {
 	sync.RWMutex
+	lifetime time.Duration
 	sessions map[string]Session
+}
+
+func (m *MemoryManager) Expire(lifetime time.Duration) {
+	m.lifetime = lifetime
 }
 
 func (m *MemoryManager) Init(sid string) (Session, error) {
@@ -58,7 +63,12 @@ func (m *MemoryManager) Read(sid string) (Session, error) {
 		return nil, fmt.Errorf("memory session id %v is not exists", sid)
 	}
 	s := m.sessions[sid]
-	s.(*Memory).lastAccessedTime = time.Now()
+	now := time.Now()
+	if s.(*Memory).lastAccessedTime.Add(m.lifetime).Before(now) {
+		delete(m.sessions, sid)
+		return nil, fmt.Errorf("memory session id %v expired", sid)
+	}
+	s.(*Memory).lastAccessedTime = now
 	return s, nil
 }
 
@@ -73,7 +83,7 @@ func (m *MemoryManager) Destory(sid string) error {
 	return nil
 }
 
-func (m *MemoryManager) GC(lifetime time.Duration) {
+func (m *MemoryManager) GC() {
 	m.Lock()
 	defer m.Unlock()
 
@@ -82,7 +92,7 @@ func (m *MemoryManager) GC(lifetime time.Duration) {
 	current := time.Now()
 	for i := range m.sessions {
 		elem := m.sessions[i].(*Memory)
-		if elem.lastAccessedTime.Add(lifetime).Before(current) {
+		if elem.lastAccessedTime.Add(m.lifetime).Before(current) {
 			res = append(res, i)
 		}
 	}
