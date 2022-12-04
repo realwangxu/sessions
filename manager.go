@@ -33,7 +33,7 @@ func (m *CookieManager) Start(w http.ResponseWriter, r *http.Request) Session {
 
 	cookie, err := r.Cookie(m.cookieName)
 	if err != nil || cookie.Value == "" {
-		sid, _ := NewUUID()
+		sid := NewUUID()
 		session, _ := m.provider.Init(sid)
 		http.SetCookie(w, &http.Cookie{
 			Name:     m.cookieName,
@@ -55,7 +55,7 @@ func (m *CookieManager) Start(w http.ResponseWriter, r *http.Request) Session {
 		})
 		return session
 	}
-	sid, _ = NewUUID()
+	sid = NewUUID()
 	session, _ := m.provider.Init(sid)
 	http.SetCookie(w, &http.Cookie{
 		Name:     m.cookieName,
