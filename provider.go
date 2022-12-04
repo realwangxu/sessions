@@ -6,7 +6,6 @@ import (
 )
 
 type Provider interface {
-	Expire(lifetime time.Duration)
 	Init(sid string) (Session, error)
 	Read(sid string) (Session, error)
 	Destory(sid string) error
@@ -26,10 +25,6 @@ func Register(name string, provider Provider) {
 		panic("provider register: provider already exists")
 	}
 	providers[name] = provider
-}
-
-func init() {
-	Register("memory", &MemoryManager{lifetime: time.Minute, sessions: make(map[string]Session)})
 }
 
 func WithBackground(manager *CookieManager) {

@@ -36,17 +36,17 @@ func (m *Memory) SessionID() string {
 	return m.sid
 }
 
-type MemoryManager struct {
+type MemoryStore struct {
 	sync.RWMutex
 	lifetime time.Duration
 	sessions map[string]Session
 }
 
-func (m *MemoryManager) Expire(lifetime time.Duration) {
-	m.lifetime = lifetime
+func NewMemoryStore(lifetime time.Duration) *MemoryStore {
+	return &MemoryStore{lifetime: lifetime, sessions: make(map[string]Session)}
 }
 
-func (m *MemoryManager) Init(sid string) (Session, error) {
+func (m *MemoryStore) Init(sid string) (Session, error) {
 	m.Lock()
 	defer m.Unlock()
 
@@ -55,7 +55,7 @@ func (m *MemoryManager) Init(sid string) (Session, error) {
 	return elem, nil
 }
 
-func (m *MemoryManager) Read(sid string) (Session, error) {
+func (m *MemoryStore) Read(sid string) (Session, error) {
 	m.Lock()
 	defer m.Unlock()
 
@@ -72,7 +72,7 @@ func (m *MemoryManager) Read(sid string) (Session, error) {
 	return s, nil
 }
 
-func (m *MemoryManager) Destory(sid string) error {
+func (m *MemoryStore) Destory(sid string) error {
 	m.Lock()
 	defer m.Unlock()
 
@@ -83,7 +83,7 @@ func (m *MemoryManager) Destory(sid string) error {
 	return nil
 }
 
-func (m *MemoryManager) GC() {
+func (m *MemoryStore) GC() {
 	m.Lock()
 	defer m.Unlock()
 

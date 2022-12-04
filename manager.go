@@ -10,20 +10,17 @@ import (
 
 type CookieManager struct {
 	sync.RWMutex
-	lifetime   time.Duration
 	maxAge     int
 	provider   Provider
 	cookieName string
 }
 
-func NewCookieManager(providerName string, lifetime time.Duration, cookieName string, maxAge int) (*CookieManager, error) {
+func NewCookieManager(providerName, cookieName string, maxAge int) (*CookieManager, error) {
 	provider, ok := providers[providerName]
 	if !ok {
 		return nil, fmt.Errorf("session: unknown provide %q (forgotten import?)", providerName)
 	}
-	provider.Expire(lifetime)
 	return &CookieManager{
-		lifetime:   lifetime,
 		maxAge:     maxAge,
 		provider:   provider,
 		cookieName: cookieName,
