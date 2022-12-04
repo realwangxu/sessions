@@ -21,7 +21,9 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		session := sessions.Start(w, r)
-		fmt.Fprintf(w, "session: %v", sessions.SessionID())
+		session.Set("token", sessions.NewUUID())
+		token, _ := session.Get("token")
+		fmt.Fprintf(w, "session: %v, token: %v", sessions.SessionID(), token)
 	})
 	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
 		sessions.Destory(w, r)
