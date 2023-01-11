@@ -35,6 +35,10 @@ func Start(w http.ResponseWriter, r *http.Request) Session {
 	return global.Start(w, r)
 }
 
+func Read(sid string) (Session, error) {
+	return global.provider.Read(sid)
+}
+
 func Destory(w http.ResponseWriter, r *http.Request) {
 	global.Destory(w, r)
 }
