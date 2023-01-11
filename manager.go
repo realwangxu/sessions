@@ -27,13 +27,22 @@ func NewCookieManager(providerName, cookieName string, maxAge int) (*CookieManag
 	}, nil
 }
 
+func (m *CookieManager) NewUUID() string {
+	for {
+		sid := NewUUID()
+		if _, err := m.provider.Read(sid); err != nil {
+			return sid
+		}
+	}
+}
+
 func (m *CookieManager) Start(w http.ResponseWriter, r *http.Request) Session {
 	m.Lock()
 	defer m.Unlock()
 
 	cookie, err := r.Cookie(m.cookieName)
 	if err != nil || cookie.Value == "" {
-		sid := NewUUID()
+		sid := m.NewUUID()
 		session, _ := m.provider.Init(sid)
 		http.SetCookie(w, &http.Cookie{
 			Name:     m.cookieName,
@@ -55,7 +64,7 @@ func (m *CookieManager) Start(w http.ResponseWriter, r *http.Request) Session {
 		})
 		return session
 	}
-	sid = NewUUID()
+	sid = m.NewUUID()
 	session, _ := m.provider.Init(sid)
 	http.SetCookie(w, &http.Cookie{
 		Name:     m.cookieName,
